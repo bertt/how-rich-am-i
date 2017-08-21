@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	if(len(os.Args) != 2) {
+	if (len(os.Args) != 2) {
 		log.Fatal("Wrong usage: how-rich-am-i <path/to/coins.json>")
 	}
 
@@ -25,12 +25,25 @@ func main() {
 
 	var total float32
 	total = 0.0
+	fmt.Printf("|%-12s|%15s|%15s|%15s|%15s|\n",
+		"Name",
+		"Price in €",
+		"% Change (7d)",
+		"My coin amount",
+		"My amount in €",
+	)
+	fmt.Println("------------------------------------------------------------------------------")
 	for _, myCoin := range myCoins {
-		priceInEur := api.GetCurrentPrice(myCoin.CurrencyId)
-		fmt.Printf("|%-12s|%12.8f|%12.2f|\n", myCoin.CurrencyId, myCoin.Amount, myCoin.Amount*priceInEur)
-		total = total + myCoin.Amount*priceInEur
+		coin := api.GetCurrencyData(myCoin.CurrencyId)
+		fmt.Printf("|%-12s|%15.8f|%15.2f|%15.8f|%15.2f|\n",
+			coin.Name,
+			coin.PriceEUR,
+			coin.PercentChange7d,
+			myCoin.Amount,
+			myCoin.Amount*coin.PriceEUR)
+		total = total + myCoin.Amount*coin.PriceEUR
 	}
 
-	fmt.Println("----------------------------------------")
-	fmt.Printf("I have %.2f € in crypto currency\n", total)
+	fmt.Println("------------------------------------------------------------------------------")
+	fmt.Printf("\nI have %.2f € in crypto currency\n", total)
 }

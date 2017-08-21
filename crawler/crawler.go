@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"github.com/mc388/how-rich-am-i/model"
 )
 
 var myClient = &http.Client{Timeout: 10 * time.Second}
@@ -15,12 +16,6 @@ type Api struct {
 	Currency string
 }
 
-type Coin struct {
-	CurrencyId string  `json:"id"`
-	Price      float32 `json:"price_eur,string"`
-	LastUpdate int     `json:"last_updated,string"`
-}
-
 func NewApi() Api {
 	api := Api{}
 	api.Url = "https://api.coinmarketcap.com/v1/ticker/"
@@ -28,7 +23,7 @@ func NewApi() Api {
 	return api
 }
 
-func (a *Api) GetCurrentPrice(coinId string) float32 {
+func (a *Api) GetCurrencyData(coinId string) model.Coin {
 	url := a.Url + coinId + "/?convert=" + a.Currency
 
 	r, err := myClient.Get(url)
@@ -40,9 +35,9 @@ func (a *Api) GetCurrentPrice(coinId string) float32 {
 
 	body, err := ioutil.ReadAll(r.Body)
 
-	coins := make([]Coin, 0)
+	coins := make([]model.Coin, 0)
 
 	err = json.Unmarshal(body, &coins)
 
-	return coins[0].Price
+	return coins[0]
 }
