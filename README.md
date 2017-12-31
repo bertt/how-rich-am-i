@@ -25,6 +25,6 @@ Create a json file to define your crypto currencies. Follow this example:
 
 Please use the id value from the [coinmarketcap api](https://api.coinmarketcap.com/v1/ticker/).
 
-Run `how-rich-am-i coins.json` to see how rich you are.
+Run `how-rich-am-i -file coins.json` to see how rich you are.
 
 ![Animation: How to use how-rich-am-i](example.gif)
