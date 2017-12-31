@@ -5,45 +5,79 @@ import (
 	"github.com/mc388/how-rich-am-i/crawler"
 	"github.com/mc388/how-rich-am-i/env"
 	"log"
-	"os"
+	"github.com/fatih/color"
+	"flag"
 )
 
 func main() {
-	if (len(os.Args) != 2) {
-		log.Fatal("Wrong usage: how-rich-am-i <path/to/coins.json>")
-	}
+	coinsConfigFile := flag.String("file", "coins.json", "path to your coins.json file")
+	flag.Parse()
 
-	coinsConfigFile := os.Args[1]
 
-	myCoins, err := env.LoadConfig(coinsConfigFile)
-
+	myCoins, err := env.LoadConfig(*coinsConfigFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	printCoins(myCoins)
+}
+
+func printCoins(myCoins []env.MyCoins) {
 	api := crawler.NewApi()
 
-	var total float32
-	total = 0.0
-	fmt.Printf("|%-12s|%15s|%15s|%15s|%15s|\n",
+	var totalUSD float32
+	totalUSD = 0.0
+
+	fmt.Printf("|%-15s|%-6s|%15s|%15s|%15s|%15s|%15s||%15s|%15s|\n",
 		"Name",
-		"Price in €",
+		"Symbol",
+		"Price in $",
+		"Price in BTC",
+		"% Change (1h)",
+		"% Change (24h)",
 		"% Change (7d)",
 		"My coin amount",
-		"My amount in €",
+		"My amount in $",
 	)
-	fmt.Println("------------------------------------------------------------------------------")
+	fmt.Println("-----------------------------------------------------------------------------------------------------------------------------------------")
 	for _, myCoin := range myCoins {
 		coin := api.GetCurrencyData(myCoin.CurrencyId)
-		fmt.Printf("|%-12s|%15.8f|%15.2f|%15.8f|%15.2f|\n",
+
+		percentChange1h := getColoredOutput(coin.PercentChange1h)
+		percentChange24h := getColoredOutput(coin.PercentChange24h)
+		percentChange7d := getColoredOutput(coin.PercentChange7d)
+
+		fmt.Printf("|%-15s|%-6s|%15.8f|%15.8f|%15s|%15s|%15s||%15.8f|%15.2f|\n",
 			coin.Name,
-			coin.PriceEUR,
-			coin.PercentChange7d,
+			coin.Symbol,
+			coin.PriceUSD,
+			coin.PriceBTC,
+			percentChange1h,
+			percentChange24h,
+			percentChange7d,
 			myCoin.Amount,
-			myCoin.Amount*coin.PriceEUR)
-		total = total + myCoin.Amount*coin.PriceEUR
+			myCoin.Amount*coin.PriceUSD)
+		totalUSD = totalUSD + myCoin.Amount*coin.PriceUSD
 	}
 
-	fmt.Println("------------------------------------------------------------------------------")
-	fmt.Printf("\nI have %.2f € in crypto currency\n", total)
+	fmt.Println("-----------------------------------------------------------------------------------------------------------------------------------------")
+	fmt.Printf("\nI have $%.2f in crypto currency!\n", totalUSD)
 }
+
+func getColoredOutput(percentChange float32) string {
+	red := color.New(color.FgRed).SprintFunc()
+	yellow := color.New(color.FgYellow).SprintFunc()
+	green := color.New(color.FgGreen).SprintFunc()
+
+	coloredOutput := fmt.Sprintf("%15.2f%%", percentChange)
+
+	coloredOutput = green(percentChange)
+	if (percentChange == 0.0) {
+		coloredOutput = yellow(percentChange)
+	} else if (percentChange < 0.0) {
+		coloredOutput = red(percentChange)
+	}
+
+	return fmt.Sprintf("%24s", coloredOutput)
+}
+
