@@ -1,14 +1,10 @@
 [
   {
-    "id": "bitcoin",
-    "amount": 0.1
-  },
-  {
     "id": "ethereum",
-    "amount": 0.1
+    "amount": 0.2045437
   },
   {
-    "id": "ripple",
-    "amount": 0.1
+    "id": "raiden-network-token",
+    "amount": 38.96100000
   }
 ]

@@ -1,18 +1,18 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log"
+
+	"github.com/fatih/color"
 	"github.com/mc388/how-rich-am-i/crawler"
 	"github.com/mc388/how-rich-am-i/env"
-	"log"
-	"github.com/fatih/color"
-	"flag"
 )
 
 func main() {
 	coinsConfigFile := flag.String("file", "coins.json", "path to your coins.json file")
 	flag.Parse()
-
 
 	myCoins, err := env.LoadConfig(*coinsConfigFile)
 	if err != nil {
@@ -61,7 +61,7 @@ func printCoins(myCoins []env.MyCoins) {
 	}
 
 	fmt.Println("-----------------------------------------------------------------------------------------------------------------------------------------")
-	fmt.Printf("\nI have $%.2f in crypto currency!\n", totalUSD)
+	fmt.Printf("\nI have €%.2f in crypto currency!\n", totalUSD*0.8)
 }
 
 func getColoredOutput(percentChange float32) string {
@@ -72,12 +72,11 @@ func getColoredOutput(percentChange float32) string {
 	coloredOutput := fmt.Sprintf("%15.2f%%", percentChange)
 
 	coloredOutput = green(percentChange)
-	if (percentChange == 0.0) {
+	if percentChange == 0.0 {
 		coloredOutput = yellow(percentChange)
-	} else if (percentChange < 0.0) {
+	} else if percentChange < 0.0 {
 		coloredOutput = red(percentChange)
 	}
 
 	return fmt.Sprintf("%24s", coloredOutput)
 }
-
